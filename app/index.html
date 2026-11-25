@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Letter — ronzz.ORG</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>Letter</h1>
+    <p class="tagline">Markdown to a formal PDF, or a Thunderbird-ready <code>.eml</code> draft.</p>
+  </div>
+  <div class="topbar-actions">
+    <span id="save-status" class="muted small">Saved in this browser</span>
+    <button type="button" id="clear-data" class="ghost danger">Clear local data</button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <section class="card">
+      <h2>Address book</h2>
+      <p id="dav-status" class="status">Not connected.</p>
+
+      <form id="dav-form" class="stack" autocomplete="off">
+        <label class="field">
+          <span>CardDAV address book URL</span>
+          <input type="url" id="dav-url" placeholder="https://dav.example.org/user/addressbook/" spellcheck="false" required>
+        </label>
+        <div class="row two">
+          <label class="field">
+            <span>Username</span>
+            <input type="text" id="dav-user" autocomplete="username" spellcheck="false">
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="dav-pass" autocomplete="current-password">
+          </label>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="dav-remember">
+          <span>Remember on this device</span>
+        </label>
+        <p class="hint">Credentials stay in this browser and are sent only to your CardDAV server. The letter server never receives them. Changing the server origin reloads the page once so the security policy can allow it.</p>
+        <div class="row wrap">
+          <button type="submit" id="dav-connect" class="primary">Connect</button>
+          <button type="button" id="dav-test" class="ghost">Test</button>
+          <button type="button" id="dav-fetch" class="ghost">Fetch contacts</button>
+          <button type="button" id="dav-disconnect" class="ghost danger">Disconnect</button>
+        </div>
+      </form>
+
+      <hr>
+
+      <div class="row wrap">
+        <label class="button-like">
+          Import .vcf
+          <input type="file" id="vcf-file" accept=".vcf,text/vcard,text/x-vcard" hidden>
+        </label>
+        <button type="button" id="vcf-export" class="ghost">Export saved .vcf</button>
+      </div>
+      <input type="search" id="contact-search" placeholder="Search saved contacts" class="search">
+      <ul id="contact-list" class="contact-list"></ul>
+    </section>
+
+    <section class="card compact">
+      <h2>Privacy</h2>
+      <p class="muted small">Your profile and contacts live in this browser (localStorage / IndexedDB). Only the recipient fields you select are sent to the letter server when you render. No account, no server-side address book.</p>
+    </section>
+  </aside>
+
+  <section class="compose">
+    <form id="letter-form" class="stack" autocomplete="off">
+      <div class="row three">
+        <label class="field">
+          <span>Style</span>
+          <select id="style" name="style" data-profile>
+            <option value="fr-formal">French formal</option>
+            <option value="en-formal">English formal</option>
+            <option value="minimal">Minimal</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Paper</span>
+          <select id="paper" name="paper" data-profile>
+            <option value="a4">A4</option>
+            <option value="us-letter">US Letter</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Document</span>
+          <select id="mode" name="mode" data-profile>
+            <option value="letter">Letter</option>
+            <option value="email">Email body</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>Sender</legend>
+        <div class="row two">
+          <label class="field"><span>Name</span><input type="text" name="sender.name" data-profile></label>
+          <label class="field"><span>Title</span><input type="text" name="sender.title" data-profile></label>
+        </div>
+        <label class="field"><span>Organisation</span><input type="text" name="sender.organization" data-profile></label>
+        <div class="row two">
+          <label class="field"><span>Street</span><input type="text" name="sender.street" data-profile autocomplete="street-address"></label>
+          <label class="field"><span>Postal code</span><input type="text" name="sender.postal_code" data-profile autocomplete="postal-code"></label>
+        </div>
+        <div class="row three">
+          <label class="field"><span>City</span><input type="text" name="sender.city" data-profile autocomplete="address-level2"></label>
+          <label class="field"><span>Region</span><input type="text" name="sender.region" data-profile autocomplete="address-level1"></label>
+          <label class="field"><span>Country</span><input type="text" name="sender.country" data-profile autocomplete="country-name"></label>
+        </div>
+        <div class="row three">
+          <label class="field"><span>Phone</span><input type="text" name="sender.phone" data-profile autocomplete="tel"></label>
+          <label class="field"><span>Email</span><input type="email" name="sender.email" data-profile autocomplete="email"></label>
+          <label class="field"><span>Website</span><input type="url" name="sender.website" data-profile autocomplete="url"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Recipient</legend>
+        <div class="row two">
+          <label class="field"><span>Name</span><input type="text" name="recipient.name" data-profile></label>
+          <label class="field"><span>Title</span><input type="text" name="recipient.title" data-profile></label>
+        </div>
+        <label class="field"><span>Organisation</span><input type="text" name="recipient.organization" data-profile></label>
+        <div class="row two">
+          <label class="field"><span>Street</span><input type="text" name="recipient.street" data-profile></label>
+          <label class="field"><span>Postal code</span><input type="text" name="recipient.postal_code" data-profile></label>
+        </div>
+        <div class="row three">
+          <label class="field"><span>City</span><input type="text" name="recipient.city" data-profile></label>
+          <label class="field"><span>Region</span><input type="text" name="recipient.region" data-profile></label>
+          <label class="field"><span>Country</span><input type="text" name="recipient.country" data-profile></label>
+        </div>
+        <div class="row two">
+          <label class="field"><span>Phone</span><input type="text" name="recipient.phone" data-profile></label>
+          <label class="field"><span>Email</span><input type="email" name="recipient.email" data-profile></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Letter details</legend>
+        <div class="row two">
+          <label class="field"><span>Place</span><input type="text" name="place" id="place" data-profile></label>
+          <label class="field"><span>Date</span><input type="text" name="date" id="date" data-profile placeholder="25 November 2026"></label>
+        </div>
+        <label class="field"><span>Subject</span><input type="text" name="subject" id="subject" data-profile></label>
+        <div class="row three">
+          <label class="field"><span>Your reference</span><input type="text" name="your_ref" data-profile></label>
+          <label class="field"><span>Our reference</span><input type="text" name="our_ref" data-profile></label>
+          <label class="field"><span>Reference</span><input type="text" name="reference" data-profile></label>
+        </div>
+        <div class="row two">
+          <label class="field"><span>Salutation</span><input type="text" name="salutation" data-profile></label>
+          <label class="field"><span>Closing</span><input type="text" name="closing" data-profile></label>
+        </div>
+        <div class="row two">
+          <label class="field"><span>Enclosures</span><input type="text" name="enclosures" data-profile></label>
+          <label class="field"><span>cc</span><input type="text" name="cc" data-profile></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Body (Markdown)</legend>
+        <textarea id="body" name="body" rows="14" data-profile placeholder="Write the letter body in Markdown…"></textarea>
+      </fieldset>
+
+      <div class="actions">
+        <label class="check"><input type="checkbox" id="attach-pdf" name="attach_pdf" data-profile checked><span>Attach the PDF to the <code>.eml</code></span></label>
+        <div class="row wrap">
+          <button type="button" id="preview-pdf" class="ghost">Preview PDF</button>
+          <button type="button" id="download-pdf" class="primary">Download PDF</button>
+          <button type="button" id="download-eml" class="secondary">Download .eml</button>
+        </div>
+      </div>
+    </form>
+  </section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/static/vendor/vcf.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

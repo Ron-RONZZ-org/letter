@@ -1,0 +1,19 @@
+services:
+  letter:
+    image: ghcr.io/ron-ronzz-org/letter:latest
+    container_name: letter
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8013:8000"
+    mem_limit: 512m
+    pids_limit: 128
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      TYPST_BIN: /usr/local/bin/typst
+      TYPST_FONT_PATH: /app/fonts

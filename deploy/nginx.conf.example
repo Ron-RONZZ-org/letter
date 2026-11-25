@@ -1,0 +1,27 @@
+# letter.ronzz.org — example only; TLS/certificates follow the existing vhosts.
+# Do NOT add a Content-Security-Policy header here: the app emits a per-user
+# CSP based on the letter_dav_origin cookie.
+
+limit_req_zone $binary_remote_addr zone=letter:10m rate=30r/m;
+
+server {
+    listen 443 ssl http2;
+    server_name letter.ronzz.org;
+
+    # ssl_certificate     /etc/letsencrypt/live/letter.ronzz.org/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/letter.ronzz.org/privkey.pem;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    client_max_body_size 300k;
+
+    location / {
+        limit_req zone=letter burst=10 nodelay;
+
+        proxy_pass http://127.0.0.1:8013;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+}

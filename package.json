@@ -1,0 +1,13 @@
+{
+  "name": "letter-web-vendor",
+  "private": true,
+  "scripts": {
+    "bundle": "esbuild web/vendor/vcf-entry.js --bundle --format=iife --platform=browser --outfile=web/vendor/vcf.js",
+    "test:js": "node --test tests/js/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.55.0",
+    "vcf": "^2.1.2"
+  }
+}

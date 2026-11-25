@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Doe;Jane;;;
+FN:Jane Doe
+ORG:ACME
+TITLE:Director
+ADR;TYPE=work:;;1 Main St;Springfield;IL;62701;USA
+EMAIL;TYPE=work:jane@example.com
+TEL;TYPE=work,voice:+1-555-0100
+UID:jane-doe-1
+END:VCARD

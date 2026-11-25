@@ -1,0 +1,11 @@
+.venv
+node_modules
+vendor/typst
+tests
+.git
+.github
+__pycache__
+.pytest_cache
+.ruff_cache
+*.pyc
+README.md
