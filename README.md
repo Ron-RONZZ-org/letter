@@ -15,7 +15,7 @@ A small public letter service for ronzz.ORG: write a formal letter in Markdown, 
 - Markdown body rendered with [cmarker](https://github.com/SabrinaJewson/cmarker.typ).
 - PDF download and preview.
 - `.eml` download with `X-Unsent: 1` (opens in compose mode in Thunderbird 91+; older clients can use *Edit As New*), `multipart/alternative` plain + HTML, optional PDF attachment.
-- CardDAV address book connection over `PROPFIND` with `address-data`; arbitrary external servers supported if they allow CORS.
+- CardDAV address book connection over `REPORT addressbook-query` with `address-data`; arbitrary external servers supported if they allow CORS.
 - `.vcf` import/export fallback that works with any server (or no server).
 - Per-user CSP: the app emits `connect-src` for the visitor's DAV origin from a non-secret `letter_dav_origin` cookie.
 
@@ -133,6 +133,6 @@ See `THIRD_PARTY.md`. Typst is Apache-2.0, cmarker and vcf are MIT, Liberation f
 ## Known limitations
 
 - No CardDAV discovery (`current-user-principal` / `addressbook-home-set`); paste the address book URL.
-- No CardDAV sync-token incremental updates; each fetch is a full `PROPFIND`.
+- No CardDAV sync-token incremental updates; each fetch is a full `REPORT addressbook-query`.
 - No server-side contact storage, by design.
 - Arbitrary CardDAV servers without CORS require `.vcf` import.

@@ -546,28 +546,29 @@ function davHeaders(config) {
   return headers;
 }
 
-const PROPFIND_BODY = `<?xml version="1.0" encoding="utf-8"?>
-<d:propfind xmlns:d="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+const REPORT_BODY = `<?xml version="1.0" encoding="utf-8"?>
+<card:addressbook-query xmlns:d="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
   <d:prop>
     <d:getetag/>
     <card:address-data/>
   </d:prop>
-</d:propfind>`;
+  <card:filter/>
+</card:addressbook-query>`;
 
-async function propfind(config) {
+async function davReport(config) {
   let response;
   try {
     response = await fetch(config.url, {
-      method: "PROPFIND",
+      method: "REPORT",
       headers: davHeaders(config),
-      body: PROPFIND_BODY,
+      body: REPORT_BODY,
       mode: "cors",
       credentials: "omit",
       redirect: "follow",
     });
   } catch (err) {
     throw new DavError(
-      "Network or CORS failure. The CardDAV server must allow this origin and support PROPFIND. " +
+      "Network or CORS failure. The CardDAV server must allow this origin and support REPORT. " +
       "You can import a .vcf file instead.",
       err
     );
@@ -598,13 +599,13 @@ function parseDavXml(text) {
 }
 
 async function testConnection(config) {
-  const items = await propfind(config);
+  const items = await davReport(config);
   setStatus(`Connected — ${items.length} card${items.length === 1 ? "" : "s"} visible.`, "ok");
   return items;
 }
 
 async function fetchContacts(config) {
-  const items = await propfind(config);
+  const items = await davReport(config);
   const normalized = [];
   for (const item of items) {
     try {

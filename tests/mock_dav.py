@@ -44,12 +44,16 @@ class Handler(BaseHTTPRequestHandler):
         )
         self.send_header("Access-Control-Expose-Headers", "DAV, ETag")
 
+    def do_PROPFIND(self):
+        # Older clients may still probe; answer with the same CORS-friendly 207.
+        return self.do_REPORT()
+
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors()
         self.end_headers()
 
-    def do_PROPFIND(self):
+    def do_REPORT(self):
         length = int(self.headers.get("Content-Length", "0") or "0")
         if length:
             self.rfile.read(length)
