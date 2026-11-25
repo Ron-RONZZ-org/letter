@@ -52,19 +52,21 @@ function applyProfile(data) {
 }
 
 let saveTimer = null;
+function saveProfileNow() {
+  clearTimeout(saveTimer);
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(readProfile()));
+    const el = $("#save-status");
+    el.textContent = "Saved";
+    setTimeout(() => { el.textContent = "Saved in this browser"; }, 1200);
+  } catch (err) {
+    console.warn("profile save failed", err);
+    toast("Could not save the profile in this browser.", "error");
+  }
+}
 function scheduleSave() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(readProfile()));
-      const el = $("#save-status");
-      el.textContent = "Saved";
-      setTimeout(() => { el.textContent = "Saved in this browser"; }, 1200);
-    } catch (err) {
-      console.warn("profile save failed", err);
-      toast("Could not save the profile in this browser.", "error");
-    }
-  }, 250);
+  saveTimer = setTimeout(saveProfileNow, 250);
 }
 
 /* ---------- payload ---------- */
@@ -634,6 +636,7 @@ async function ensureDav(action) {
     saveDavConfig(config);
 
     if (origin !== cookieValue(DAV_COOKIE)) {
+      saveProfileNow();
       setOriginCookie(origin);
       sessionStorage.setItem("letter.pendingAction", action);
       toast("Reloading once to allow this CardDAV origin…", "");
@@ -766,4 +769,5 @@ async function init() {
   }
 }
 
+window.addEventListener("beforeunload", saveProfileNow);
 window.addEventListener("DOMContentLoaded", init);
