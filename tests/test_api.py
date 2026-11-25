@@ -13,6 +13,8 @@ def test_index_sets_csp(client):
     assert "connect-src 'self'" in csp
     assert "dav.example.org" not in csp
     assert response.headers["x-frame-options"] == "DENY"
+    assert "{{ASSET_VERSION}}" not in response.text
+    assert "/static/app.js?v=" in response.text
 
 
 def test_index_uses_dav_origin_cookie(client):

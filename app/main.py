@@ -1,3 +1,4 @@
+import hashlib
 import logging
 from pathlib import Path
 from urllib.parse import unquote
@@ -17,6 +18,16 @@ from .render import WEB_DIR, render_pdf
 logger = logging.getLogger("letter")
 MAX_BODY_BYTES = 300_000
 
+
+def _asset_version() -> str:
+    digest = hashlib.sha256()
+    for name in ("app.js", "styles.css", "vendor/vcf.js"):
+        digest.update((WEB_DIR / name).read_bytes())
+    return digest.hexdigest()[:10]
+
+
+ASSET_VERSION = _asset_version()
+
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 SECURITY_HEADERS = {
@@ -34,6 +45,14 @@ async def security_headers(request: Request, call_next):
     response = await call_next(request)
     for key, value in SECURITY_HEADERS.items():
         response.headers.setdefault(key, value)
+    return response
+
+
+@app.middleware("http")
+async def static_cache(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache"
     return response
 
 
@@ -79,6 +98,7 @@ async def render_handler(request: Request, exc: RenderError):
 def index(request: Request):
     origin = normalize_origin(unquote(request.cookies.get(COOKIE_NAME) or ""))
     html = (Path(__file__).parent / "index.html").read_text(encoding="utf-8")
+    html = html.replace("{{ASSET_VERSION}}", ASSET_VERSION)
     return Response(
         html,
         media_type="text/html",
